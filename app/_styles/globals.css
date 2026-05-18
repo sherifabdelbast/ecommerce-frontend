@@ -36,6 +36,15 @@
   --color-outline: #76777d;
   --color-outline-variant: #c6c6cd;
 
+  /* On-color & container tokens (editorial home) */
+  --color-on-surface: #191c1e;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #131b2e;
+  --color-surface-container-lowest: #ffffff;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-on-tertiary-fixed: #002113;
+
   /* Fonts */
   --font-headline: var(--font-manrope), sans-serif;
   --font-body: var(--font-inter), sans-serif;
@@ -52,7 +61,8 @@
   --tracking-tight: -0.02em;
   --tracking-widest: 0.2em;
 
-  /* Optional shadows if you want this design system to feel more premium */
+  /* Ambient elevation — depth is a feeling, not a drop-shadow (DESIGN.md §4) */
+  --shadow-ambient: 0 20px 40px rgba(25, 28, 30, 0.06);
   --shadow-soft: 0 4px 24px rgb(0 0 0 / 0.06);
   --shadow-card: 0 2px 10px rgb(0 0 0 / 0.05);
 
@@ -83,8 +93,9 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Ghost border default — never 100% opaque outlines (DESIGN.md §2, §4) */
   * {
-    border-color: var(--color-outline-variant);
+    border-color: color-mix(in srgb, var(--color-outline-variant) 20%, transparent);
   }
 
   h1,
@@ -133,17 +144,15 @@
     scrollbar-width: none;
   }
 
-  /* Reusable surface helpers */
+  /* Reusable surface helpers — tonal layering, ghost borders only */
   .surface-card {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-outline-variant);
+    background-color: var(--color-surface-container-lowest);
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--shadow-ambient);
   }
 
   .surface-panel {
     background-color: var(--color-surface-container-low);
-    border: 1px solid var(--color-outline-variant);
     border-radius: var(--radius-lg);
   }
 }
