@@ -1,5 +1,12 @@
 @AGENTS.md
 
+# component conventions
+
+All React components live in `app/_components/` — the single direct child of
+`app/`. Do NOT create `_components/` (or any component directory) inside route
+folders. Route files (`page.tsx`, `layout.tsx`) import components from
+`app/_components/`. Shared data/helpers live in `app/_lib/`.
+
 # this is the structure of the final app that should be
 
 app/

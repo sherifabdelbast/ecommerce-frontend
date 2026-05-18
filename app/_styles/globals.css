@@ -44,6 +44,9 @@
   --color-tertiary-fixed: #6ffbbe;
   --color-tertiary-fixed-dim: #4edea3;
   --color-on-tertiary-fixed: #002113;
+  --color-on-tertiary-container: #009668;
+  --color-on-tertiary-fixed-variant: #005236;
+  --color-on-primary-fixed-variant: #3f465c;
 
   /* Fonts */
   --font-headline: var(--font-manrope), sans-serif;
