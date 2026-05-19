@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LuUser,
   LuPackage,
@@ -10,7 +10,8 @@ import {
   LuLogOut,
 } from "react-icons/lu";
 import type { IconType } from "react-icons";
-import { MOCK_USER, initials } from "../_lib/account";
+import { initials } from "../_lib/account";
+import { useUser } from "@/app/_lib/auth-context";
 
 type NavItem = {
   href: string;
@@ -26,30 +27,42 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * Shared account-area side navigation. Desktop: a sticky full-height panel
- * with the signed-in user's header. Mobile: a horizontal scrolling nav row.
+ * Shared account-area side navigation. Reads the signed-in user from the
+ * AuthProvider — the header card and logout button both wire to real state.
  */
 export default function AccountSideNav() {
   const pathname = usePathname();
-  const user = MOCK_USER;
+  const router = useRouter();
+  const { user, logout } = useUser();
+
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {
+      // Surface via toast later.
+    }
+    router.push("/login");
+  }
 
   return (
     <aside className="border-b border-outline-variant/20 bg-surface-container-low md:w-72 md:shrink-0 md:border-b-0 md:border-r">
       <div className="md:sticky md:top-20 md:flex md:h-[calc(100vh-5rem)] md:flex-col md:px-8 md:py-12">
         {/* User header — desktop only */}
-        <div className="hidden items-center gap-4 md:flex">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary font-headline text-sm font-bold text-on-primary">
-            {initials(user)}
-          </span>
-          <div>
-            <p className="font-headline text-lg font-bold text-primary">
-              {user.firstName} {user.lastName}
-            </p>
-            <p className="font-label text-[10px] uppercase tracking-widest text-secondary">
-              {user.tier}
-            </p>
+        {user ? (
+          <div className="hidden items-center gap-4 md:flex">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary font-headline text-sm font-bold text-on-primary">
+              {initials(user)}
+            </span>
+            <div>
+              <p className="font-headline text-lg font-bold text-primary">
+                {user.firstName} {user.lastName}
+              </p>
+              <p className="font-label text-[10px] uppercase tracking-widest text-secondary">
+                {user.role === "admin" ? "Administrator" : "Member"}
+              </p>
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Nav */}
         <nav className="flex gap-1 overflow-x-auto px-4 py-3 md:mt-10 md:flex-col md:overflow-visible md:px-0 md:py-0">
@@ -79,6 +92,7 @@ export default function AccountSideNav() {
         {/* Logout — pinned to bottom on desktop */}
         <button
           type="button"
+          onClick={handleLogout}
           className="mt-auto hidden items-center gap-3 border-t border-outline-variant/20 pt-6 font-label text-[11px] font-bold uppercase tracking-widest text-error transition-opacity hover:opacity-70 md:flex"
         >
           <LuLogOut className="text-base" />

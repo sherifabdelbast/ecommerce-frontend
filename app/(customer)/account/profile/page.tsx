@@ -1,10 +1,13 @@
+"use client";
+
 import { LuArrowRight, LuMail, LuPhone, LuCamera, LuShieldCheck } from "react-icons/lu";
-import { MOCK_USER, initials } from "../../../_lib/account";
+import { initials, memberSince } from "@/app/_lib/account";
+import { useUser } from "@/app/_lib/auth-context";
 
 /**
- * Account profile — CSR, auth-gated (CLAUDE.md). Editable account details.
- *
- * Fields are seeded from the mock user. Submission wires to PUT /v1/profile.
+ * Account profile — CSR, auth-gated (CLAUDE.md). Editable account details
+ * sourced from the AuthProvider's `/auth/me` session. Submit wires to
+ * `PUT /v1/profile` (still mock-side until that mutation lands).
  */
 const FIELD_CLASS =
   "w-full rounded-md border-none bg-surface-container-low px-4 py-3.5 font-body text-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary";
@@ -12,7 +15,25 @@ const LABEL_CLASS =
   "mb-2 block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant";
 
 export default function ProfilePage() {
-  const user = MOCK_USER;
+  const { user, loading } = useUser();
+
+  if (loading) {
+    return (
+      <div className="px-6 py-12 sm:px-10 lg:px-16">
+        <p className="font-body text-sm text-secondary">Loading profile…</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="px-6 py-12 sm:px-10 lg:px-16">
+        <p className="font-body text-sm text-secondary">
+          You are not signed in.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="px-6 py-12 sm:px-10 lg:px-16">
@@ -31,28 +52,28 @@ export default function ProfilePage() {
           <form className="space-y-8 rounded-xl bg-surface-container-lowest p-8 shadow-ambient">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
-                <label htmlFor="full_name" className={LABEL_CLASS}>
-                  Full Name
+                <label htmlFor="first_name" className={LABEL_CLASS}>
+                  First Name
                 </label>
                 <input
-                  id="full_name"
-                  name="full_name"
-                  autoComplete="name"
-                  defaultValue={`${user.firstName} ${user.lastName}`}
-                  placeholder="Enter your full name"
+                  id="first_name"
+                  name="first_name"
+                  autoComplete="given-name"
+                  defaultValue={user.firstName}
+                  placeholder="First name"
                   className={FIELD_CLASS}
                 />
               </div>
               <div>
-                <label htmlFor="username" className={LABEL_CLASS}>
-                  Username
+                <label htmlFor="last_name" className={LABEL_CLASS}>
+                  Last Name
                 </label>
                 <input
-                  id="username"
-                  name="username"
-                  autoComplete="username"
-                  defaultValue={user.username}
-                  placeholder="Username"
+                  id="last_name"
+                  name="last_name"
+                  autoComplete="family-name"
+                  defaultValue={user.lastName}
+                  placeholder="Last name"
                   className={FIELD_CLASS}
                 />
               </div>
@@ -87,7 +108,7 @@ export default function ProfilePage() {
                   name="phone"
                   type="tel"
                   autoComplete="tel"
-                  defaultValue={user.phone}
+                  defaultValue={user.phone ?? ""}
                   placeholder="+1 (000) 000-0000"
                   className={`${FIELD_CLASS} pl-11`}
                 />
@@ -124,7 +145,7 @@ export default function ProfilePage() {
                 {user.firstName} {user.lastName}
               </p>
               <p className="mt-1 font-label text-[10px] uppercase tracking-widest text-secondary">
-                Member since {user.memberSince}
+                Member since {memberSince(user.createdAt)}
               </p>
             </div>
           </div>
