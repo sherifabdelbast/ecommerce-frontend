@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import ProductForm from "../../../../../_components/ProductForm";
 import { getProductBySlug } from "../../../../../_lib/products";
 
-type RouteParams = { id: string };
+type RouteParams = { productId: string };
 
 // Auth + role gated admin route (CLAUDE.md → CSR) — rendered on demand,
 // never prerendered into static HTML at build time.
@@ -11,8 +11,8 @@ export default async function EditProductPage({
 }: {
   params: Promise<RouteParams>;
 }) {
-  const { id } = await params;
-  const product = await getProductBySlug(id);
+  const { productId } = await params;
+  const product = await getProductBySlug(productId);
   if (!product) notFound();
 
   return (

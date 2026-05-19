@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import AddressForm from "../../../../../_components/AddressForm";
 import { getAddressById } from "../../../../../_lib/addresses";
 
-type RouteParams = { id: string };
+type RouteParams = { addressId: string };
 
 // Auth-gated, user-private (CLAUDE.md → CSR) — rendered on demand, never
 // prerendered into static HTML at build time.
@@ -11,8 +11,8 @@ export default async function EditAddressPage({
 }: {
   params: Promise<RouteParams>;
 }) {
-  const { id } = await params;
-  const address = await getAddressById(Number(id));
+  const { addressId } = await params;
+  const address = await getAddressById(Number(addressId));
   if (!address) notFound();
 
   return (
