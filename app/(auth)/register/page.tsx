@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { LuBadgeCheck, LuX } from "react-icons/lu";
+import RegisterForm from "@/app/_components/RegisterForm";
 
 export const metadata: Metadata = {
   title: "Request Access | ARCHITECT",
@@ -92,114 +93,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <form className="space-y-6">
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="name"
-                  className="block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                >
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  placeholder="E.g. Julian Atelier"
-                  className="h-12 w-full rounded-md border border-outline-variant/20 bg-surface-container-highest px-4 text-sm text-on-surface transition-all placeholder:text-outline-variant focus:border-primary focus:ring-0"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="email"
-                  className="block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                >
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="name@architect.com"
-                  className="h-12 w-full rounded-md border border-outline-variant/20 bg-surface-container-highest px-4 text-sm text-on-surface transition-all placeholder:text-outline-variant focus:border-primary focus:ring-0"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="password"
-                    className="block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                  >
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="••••••••"
-                    className="h-12 w-full rounded-md border border-outline-variant/20 bg-surface-container-highest px-4 text-sm text-on-surface transition-all placeholder:text-outline-variant focus:border-primary focus:ring-0"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="confirm-password"
-                    className="block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant"
-                  >
-                    Confirm
-                  </label>
-                  <input
-                    id="confirm-password"
-                    name="confirm-password"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="••••••••"
-                    className="h-12 w-full rounded-md border border-outline-variant/20 bg-surface-container-highest px-4 text-sm text-on-surface transition-all placeholder:text-outline-variant focus:border-primary focus:ring-0"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <input
-                  id="terms"
-                  name="terms"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-outline-variant/20 bg-surface-container-highest text-primary focus:ring-primary"
-                />
-                <label
-                  htmlFor="terms"
-                  className="text-xs leading-tight text-secondary"
-                >
-                  I agree to the{" "}
-                  <Link
-                    href="#"
-                    className="font-semibold text-primary hover:underline"
-                  >
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link
-                    href="#"
-                    className="font-semibold text-primary hover:underline"
-                  >
-                    Privacy Policy
-                  </Link>
-                  .
-                </label>
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="h-14 w-full rounded-md bg-gradient-to-b from-[#0d0d0d] to-primary font-headline text-sm font-bold uppercase tracking-widest text-on-primary shadow-ambient transition-all hover:from-primary hover:to-primary-container active:scale-[0.98]"
-                >
-                  Initialize Account
-                </button>
-              </div>
-            </form>
+            <RegisterForm />
 
             <div className="mt-12 text-center">
               <p className="font-body text-sm font-light text-secondary">
