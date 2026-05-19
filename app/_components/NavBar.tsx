@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaRegUser } from "react-icons/fa";
 import { MdOutlineShoppingBag } from "react-icons/md";
+import AccountMenu from "./AccountMenu";
 
 const links = [
   { label: "Collections", href: "/categories" },
@@ -46,18 +46,14 @@ function NavBar() {
         </div>
 
         <div className="flex items-center space-x-6">
-          <button
+          <Link
+            href="/cart"
             aria-label="Cart"
             className="text-primary transition-opacity duration-300 hover:opacity-70 active:scale-90"
           >
             <MdOutlineShoppingBag className="text-xl" />
-          </button>
-          <button
-            aria-label="Account"
-            className="text-primary transition-opacity duration-300 hover:opacity-70 active:scale-90"
-          >
-            <FaRegUser className="text-lg" />
-          </button>
+          </Link>
+          <AccountMenu />
         </div>
       </div>
     </nav>
