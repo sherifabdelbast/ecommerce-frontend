@@ -132,13 +132,13 @@ export default async function ProductDetailPage({
                 disabled={!product.inStock}
                 className="w-full rounded-md bg-gradient-to-b from-[#0d0d0d] to-primary py-5 font-label text-[11px] font-bold uppercase tracking-widest text-on-primary shadow-ambient transition-all hover:from-primary hover:to-primary-container active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {product.inStock ? "Add to Collection" : "Sold Out"}
+                {product.inStock ? "Add to Cart" : "Sold Out"}
               </button>
               <button
                 type="button"
                 className="w-full rounded-md border border-outline-variant/20 py-5 font-label text-[11px] font-bold uppercase tracking-widest text-primary transition-colors hover:bg-surface-container-low"
               >
-                Inquire for Commission
+                Custom Inquiry
               </button>
             </div>
 
