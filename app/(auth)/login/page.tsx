@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { LuArrowRight, LuLandmark } from "react-icons/lu";
+import { LuLandmark } from "react-icons/lu";
 import { FcGoogle } from "react-icons/fc";
+import LoginForm from "@/app/_components/LoginForm";
 
 export const metadata: Metadata = {
   title: "Sign In | ARCHITECT",
@@ -67,59 +68,7 @@ export default function LoginPage() {
             </p>
           </header>
 
-          <form className="space-y-8">
-            <div className="space-y-6">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="mb-2 block font-label text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant"
-                >
-                  Professional Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="name@studio.com"
-                  className="w-full rounded-md border border-outline-variant/20 bg-surface-container-highest px-4 py-4 font-body text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant focus:border-primary focus:ring-0"
-                />
-              </div>
-
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="block font-label text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant"
-                  >
-                    Password
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="font-label text-[10px] uppercase tracking-widest text-on-tertiary-container transition-colors hover:text-on-tertiary-fixed-variant"
-                  >
-                    Forgot Password?
-                  </Link>
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  className="w-full rounded-md border border-outline-variant/20 bg-surface-container-highest px-4 py-4 font-body text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant focus:border-primary focus:ring-0"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-md bg-gradient-to-b from-[#0d0d0d] to-primary py-5 font-headline text-sm font-bold text-on-primary shadow-ambient transition-all duration-300 hover:from-primary hover:to-primary-container active:scale-[0.98]"
-            >
-              Sign In to Dashboard
-              <LuArrowRight className="text-lg transition-transform group-hover:translate-x-1" />
-            </button>
-          </form>
+          <LoginForm />
 
           <div className="flex items-center gap-4">
             <div className="h-px flex-grow bg-surface-variant" />

@@ -3,6 +3,7 @@ import "../_styles/globals.css";
 import { fontVariables } from "../_lib/fonts";
 import AdminSidebar from "../_components/AdminSidebar";
 import AdminTopBar from "../_components/AdminTopBar";
+import { AuthProvider } from "@/app/_lib/auth-context";
 
 export const metadata: Metadata = {
   title: "Admin Console | ARCHITECT",
@@ -17,11 +18,13 @@ export default function AdminLayout({
   return (
     <html lang="en" className={`${fontVariables} h-full`}>
       <body className="min-h-full bg-background font-body text-on-surface">
-        <AdminSidebar />
-        <div className="ml-64">
-          <AdminTopBar />
-          <main className="min-h-screen px-8 pb-12 pt-24">{children}</main>
-        </div>
+        <AuthProvider>
+          <AdminSidebar />
+          <div className="ml-64">
+            <AdminTopBar />
+            <main className="min-h-screen px-8 pb-12 pt-24">{children}</main>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );
