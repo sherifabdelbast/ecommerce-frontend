@@ -34,7 +34,10 @@ type RegisterInput = {
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
+  phone: string;
+  gender: string;
+  /** ISO date, YYYY-MM-DD. */
+  birthday: string;
   password: string;
   passwordConfirmation: string;
 };
@@ -94,6 +97,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         last_name: input.lastName,
         email: input.email,
         phone: input.phone,
+        gender: input.gender,
+        birthday: input.birthday,
         password: input.password,
         password_confirmation: input.passwordConfirmation,
       }),
