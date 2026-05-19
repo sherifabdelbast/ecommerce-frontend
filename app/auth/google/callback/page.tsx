@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 /**
@@ -17,26 +17,23 @@ import { useRouter, useSearchParams } from "next/navigation";
 function GoogleCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
+
+  // Outcome is derived straight from the URL — no state, no effect needed
+  // to compute it (vercel rerender-derived-state-no-effect).
+  const token = searchParams.get("token");
+  const hasError = Boolean(searchParams.get("error")) || !token;
 
   useEffect(() => {
-    const token = searchParams.get("token");
-    const failed = searchParams.get("error");
-
-    if (failed || !token) {
-      setError("We could not complete Google sign-in. Please try again.");
-      return;
-    }
-
+    if (hasError || !token) return;
     // TODO: replace with the shared auth store once it exists.
     window.localStorage.setItem("auth_token", token);
     router.replace("/account/profile");
-  }, [router, searchParams]);
+  }, [hasError, token, router]);
 
-  return error ? (
+  return hasError ? (
     <>
       <p className="max-w-sm font-body text-sm leading-relaxed text-secondary">
-        {error}
+        We could not complete Google sign-in. Please try again.
       </p>
       <a
         href="/login"

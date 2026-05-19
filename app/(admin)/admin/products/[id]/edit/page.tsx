@@ -1,14 +1,11 @@
 import { notFound } from "next/navigation";
 import ProductForm from "../../../../../_components/ProductForm";
-import { getProductBySlug, getAllProductSlugs } from "../../../../../_lib/products";
+import { getProductBySlug } from "../../../../../_lib/products";
 
 type RouteParams = { id: string };
 
-/** Pre-render every known product (keyed by slug). */
-export function generateStaticParams(): RouteParams[] {
-  return getAllProductSlugs().map((id) => ({ id }));
-}
-
+// Auth + role gated admin route (CLAUDE.md → CSR) — rendered on demand,
+// never prerendered into static HTML at build time.
 export default async function EditProductPage({
   params,
 }: {

@@ -92,10 +92,14 @@ export const getBrandBySlug = cache(
  */
 export const getBrandProducts = cache(
   async (slug: string): Promise<Product[]> => {
-    const brand = await getBrandBySlug(slug);
+    // Brand lookup and the catalogue are independent — fetch in parallel.
+    const [brand, products] = await Promise.all([
+      getBrandBySlug(slug),
+      getProducts(),
+    ]);
     if (!brand) return [];
 
-    const bySlug = new Map((await getProducts()).map((p) => [p.slug, p]));
+    const bySlug = new Map(products.map((p) => [p.slug, p]));
     return brand.productSlugs
       .map((s) => bySlug.get(s))
       .filter((p): p is Product => p !== undefined);

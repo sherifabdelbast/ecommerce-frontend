@@ -3,19 +3,12 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { LuCheck, LuReceipt, LuRefreshCw } from "react-icons/lu";
 import { formatPrice } from "../../../../_lib/format";
-import {
-  getOrderByNumber,
-  getAllOrderNumbers,
-  STATUS_LABELS,
-} from "../../../../_lib/orders";
+import { getOrderByNumber, STATUS_LABELS } from "../../../../_lib/orders";
 
 type RouteParams = { orderNumber: string };
 
-/** Pre-render every known order. */
-export function generateStaticParams(): RouteParams[] {
-  return getAllOrderNumbers().map((orderNumber) => ({ orderNumber }));
-}
-
+// Auth-gated, user-private (CLAUDE.md → CSR) — rendered on demand, never
+// prerendered into static HTML at build time.
 export async function generateMetadata({
   params,
 }: {

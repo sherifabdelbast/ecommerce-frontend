@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LuLock, LuWallet, LuCreditCard } from "react-icons/lu";
@@ -21,13 +20,11 @@ const LABEL_CLASS =
   "mb-2 block font-label text-[11px] font-bold uppercase tracking-wider text-on-surface-variant";
 
 export default function CheckoutPage() {
+  // The mock cart is a module constant — totals are plain derived values.
   const items = MOCK_CART.items;
-
-  const { subtotal, tax, total } = useMemo(() => {
-    const sub = items.reduce((sum, item) => sum + item.subtotal, 0);
-    const estimatedTax = Math.round(sub * TAX_RATE);
-    return { subtotal: sub, tax: estimatedTax, total: sub + estimatedTax };
-  }, [items]);
+  const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+  const tax = Math.round(subtotal * TAX_RATE);
+  const total = subtotal + tax;
 
   return (
     <>
