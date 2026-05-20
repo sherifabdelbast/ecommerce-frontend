@@ -103,7 +103,12 @@ export default function RegisterForm() {
   const otherErrors = Object.entries(errors).filter(([k]) => !knownKeys.has(k));
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+    <form
+      method="POST"
+      className="space-y-6"
+      onSubmit={handleSubmit}
+      noValidate
+    >
       <div className="space-y-1.5">
         <label htmlFor="name" className={LABEL}>
           Full Name
