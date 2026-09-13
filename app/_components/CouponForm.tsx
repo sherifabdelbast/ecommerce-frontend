@@ -6,7 +6,6 @@ type CouponFormProps = {
   heading: string;
   subtitle: string;
   submitLabel: string;
-  /** Existing coupon when editing; omitted when creating. */
   coupon?: Coupon;
 };
 
@@ -15,7 +14,11 @@ const FIELD =
 const LABEL =
   "mb-2 block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant";
 
-/** Shared admin coupon form — backs the create and edit routes. */
+function toDateInputValue(iso: string | null | undefined): string {
+  if (!iso) return "";
+  return iso.slice(0, 10);
+}
+
 export default function CouponForm({
   heading,
   subtitle,
@@ -77,13 +80,13 @@ export default function CouponForm({
             id="description"
             name="description"
             rows={3}
-            defaultValue={coupon?.description}
+            defaultValue={coupon?.description ?? ""}
             placeholder="Internal note shown to admins."
             className={FIELD}
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">
           <div>
             <label htmlFor="value" className={LABEL}>
               Value
@@ -99,16 +102,30 @@ export default function CouponForm({
             />
           </div>
           <div>
-            <label htmlFor="min_subtotal" className={LABEL}>
-              Min. Subtotal
+            <label htmlFor="min_purchase" className={LABEL}>
+              Min. Purchase
             </label>
             <input
-              id="min_subtotal"
-              name="min_subtotal"
+              id="min_purchase"
+              name="min_purchase"
               type="number"
               min="0"
-              defaultValue={coupon?.minSubtotal ?? ""}
+              defaultValue={coupon?.minPurchase ?? ""}
               placeholder="0"
+              className={FIELD}
+            />
+          </div>
+          <div>
+            <label htmlFor="max_discount" className={LABEL}>
+              Max Discount
+            </label>
+            <input
+              id="max_discount"
+              name="max_discount"
+              type="number"
+              min="0"
+              defaultValue={coupon?.maxDiscount ?? ""}
+              placeholder="No cap"
               className={FIELD}
             />
           </div>
@@ -130,43 +147,42 @@ export default function CouponForm({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="starts_on" className={LABEL}>
-              Starts On
+            <label htmlFor="valid_from" className={LABEL}>
+              Valid From
             </label>
             <input
-              id="starts_on"
-              name="starts_on"
+              id="valid_from"
+              name="valid_from"
               type="date"
+              defaultValue={toDateInputValue(coupon?.validFrom)}
               className={FIELD}
             />
           </div>
           <div>
-            <label htmlFor="ends_on" className={LABEL}>
-              Ends On
+            <label htmlFor="valid_to" className={LABEL}>
+              Valid To
             </label>
             <input
-              id="ends_on"
-              name="ends_on"
+              id="valid_to"
+              name="valid_to"
               type="date"
+              defaultValue={toDateInputValue(coupon?.validTo)}
               className={FIELD}
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="status" className={LABEL}>
-            Status
+          <label className="flex items-center gap-3 font-body text-sm text-on-surface">
+            <input
+              id="is_active"
+              name="is_active"
+              type="checkbox"
+              defaultChecked={coupon?.isActive ?? true}
+              className="h-4 w-4 rounded border-outline-variant"
+            />
+            Active
           </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={coupon?.status ?? "scheduled"}
-            className={FIELD}
-          >
-            <option value="active">Active</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="expired">Expired</option>
-          </select>
         </div>
 
         <div className="flex gap-4 border-t border-outline-variant/20 pt-6">

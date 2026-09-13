@@ -1,84 +1,53 @@
 import { cache } from "react";
+import { apiFetch, Paginated, Resource } from "./api";
 
 /**
- * Shipping methods data layer.
+ * Shipping methods data layer — backed by the Laravel API.
  *
- * Mock today. Live version reads admin endpoints GET /v1/admin/shipping-methods
- * and GET /v1/admin/shipping-methods/{method}. Types mirror the planned
- * `ShippingMethodResource` so the swap stays local here.
+ * Public `/shipping-methods` only returns active methods (used at
+ * checkout). Admin screens need to see and manage inactive methods too,
+ * so they go through the separate `/admin/shipping-methods` endpoints.
  */
-
-export type ShippingMethodStatus = "active" | "inactive";
 
 export type ShippingMethod = {
   id: number;
   name: string;
-  description: string;
-  /** Carrier label shown alongside the method. */
-  carrier: string;
-  /** Flat rate in USD. */
-  price: number;
-  /** Free above this cart subtotal; null = never. */
-  freeAbove: number | null;
-  estimatedDays: string;
+  description: string | null;
+  cost: number;
+  estimatedDaysMin: number | null;
+  estimatedDaysMax: number | null;
+  estimatedDelivery: string | null;
+  isActive: boolean;
   sortOrder: number;
-  status: ShippingMethodStatus;
 };
 
-const METHODS: readonly ShippingMethod[] = [
-  {
-    id: 1,
-    name: "White Glove Standard",
-    description:
-      "Two-person delivery, unboxing and on-site placement included.",
-    carrier: "Atelier Logistics",
-    price: 250,
-    freeAbove: 5000,
-    estimatedDays: "10 – 14 days",
-    sortOrder: 1,
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "International Express",
-    description: "Climate-controlled freight to all major EU and Asian hubs.",
-    carrier: "DHL Express",
-    price: 480,
-    freeAbove: null,
-    estimatedDays: "5 – 7 days",
-    sortOrder: 2,
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Studio Pickup",
-    description: "Collect from the New York or Milan ateliers by appointment.",
-    carrier: "ARCHITECT",
-    price: 0,
-    freeAbove: 0,
-    estimatedDays: "Schedule",
-    sortOrder: 3,
-    status: "active",
-  },
-  {
-    id: 4,
-    name: "Domestic Ground",
-    description: "Insured ground transport within the contiguous US.",
-    carrier: "FedEx Freight",
-    price: 95,
-    freeAbove: 2500,
-    estimatedDays: "4 – 6 days",
-    sortOrder: 4,
-    status: "inactive",
-  },
-];
-
 export const getShippingMethods = cache(async (): Promise<ShippingMethod[]> => {
-  return METHODS.slice();
+  const res = await apiFetch<Resource<ShippingMethod[]>>("/shipping-methods", {
+    cache: "no-store",
+  });
+  return res.data;
 });
+
+export const getAdminShippingMethods = cache(
+  async (): Promise<ShippingMethod[]> => {
+    const res = await apiFetch<Paginated<ShippingMethod>>(
+      "/admin/shipping-methods?per_page=100",
+      { cache: "no-store" },
+    );
+    return res.data;
+  },
+);
 
 export const getShippingMethodById = cache(
   async (id: number): Promise<ShippingMethod | null> => {
-    return METHODS.find((m) => m.id === id) ?? null;
+    try {
+      const res = await apiFetch<Resource<ShippingMethod>>(
+        `/admin/shipping-methods/${id}`,
+        { cache: "no-store" },
+      );
+      return res.data;
+    } catch {
+      return null;
+    }
   },
 );

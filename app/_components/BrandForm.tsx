@@ -83,33 +83,6 @@ export default function BrandForm({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="discipline" className={LABEL}>
-              Discipline
-            </label>
-            <input
-              id="discipline"
-              name="discipline"
-              defaultValue={brand?.discipline}
-              placeholder="Cast Concrete"
-              className={FIELD}
-            />
-          </div>
-          <div>
-            <label htmlFor="founded" className={LABEL}>
-              Founded
-            </label>
-            <input
-              id="founded"
-              name="founded"
-              defaultValue={brand?.founded}
-              placeholder="Est. 2009"
-              className={FIELD}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div>
             <label htmlFor="website" className={LABEL}>
               Website
             </label>

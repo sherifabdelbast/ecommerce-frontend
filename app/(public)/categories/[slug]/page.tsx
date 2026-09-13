@@ -18,8 +18,9 @@ export const revalidate = 600;
 type RouteParams = { slug: string };
 
 /** Pre-render every known category at build time. */
-export function generateStaticParams(): RouteParams[] {
-  return getAllCategorySlugs().map((slug) => ({ slug }));
+export async function generateStaticParams(): Promise<RouteParams[]> {
+  const slugs = await getAllCategorySlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -61,7 +62,10 @@ export default async function CategoryDetailPage({
         <section className="mb-16 grid grid-cols-1 items-end gap-8 lg:mb-24 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <nav className="mb-6 flex items-center gap-2 font-label text-[11px] uppercase tracking-widest text-secondary">
-              <Link href="/categories" className="transition-opacity hover:opacity-70">
+              <Link
+                href="/categories"
+                className="transition-opacity hover:opacity-70"
+              >
                 Categories
               </Link>
               <span aria-hidden>/</span>
@@ -98,7 +102,10 @@ export default async function CategoryDetailPage({
             </p>
             <p className="font-body text-sm text-secondary">
               Browse the{" "}
-              <Link href="/products" className="underline transition-opacity hover:opacity-70">
+              <Link
+                href="/products"
+                className="underline transition-opacity hover:opacity-70"
+              >
                 full catalogue
               </Link>{" "}
               instead.
@@ -116,7 +123,8 @@ export default async function CategoryDetailPage({
               ))}
             </div>
             <p className="mt-24 text-center font-label text-[11px] uppercase tracking-widest text-secondary">
-              {products.length} {products.length === 1 ? "object" : "objects"} curated
+              {products.length} {products.length === 1 ? "object" : "objects"}{" "}
+              curated
             </p>
           </>
         )}

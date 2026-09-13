@@ -29,12 +29,10 @@ export default function LoginForm() {
         email: String(data.get("email") ?? ""),
         password: String(data.get("password") ?? ""),
       });
-      router.push("/account/profile");
+      router.push("/");
     } catch (err) {
       const msg =
-        err instanceof ApiError
-          ? err.message
-          : "Sign in failed. Try again.";
+        err instanceof ApiError ? err.message : "Sign in failed. Try again.";
       setError(msg);
       setSubmitting(false);
     }

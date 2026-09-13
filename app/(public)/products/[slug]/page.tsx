@@ -18,8 +18,9 @@ export const revalidate = 600;
 type RouteParams = { slug: string };
 
 /** Pre-render every known product at build time. */
-export function generateStaticParams(): RouteParams[] {
-  return getAllProductSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams(): Promise<RouteParams[]> {
+  const slugs = await getAllProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -33,7 +34,8 @@ export async function generateMetadata({
 
   return {
     title: `${product.name} | ARCHITECT`,
-    description: product.description ?? `${product.name} — ${product.material}.`,
+    description:
+      product.description ?? `${product.name} — ${product.material}.`,
   };
 }
 
@@ -52,9 +54,7 @@ export default async function ProductDetailPage({
 
   if (!product) notFound();
 
-  const gallery = product.gallery ?? [
-    { src: product.image, alt: product.alt },
-  ];
+  const gallery = product.gallery ?? [{ src: product.image, alt: product.alt }];
 
   return (
     <>

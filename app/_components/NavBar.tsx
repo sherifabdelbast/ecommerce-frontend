@@ -7,7 +7,6 @@ import AccountMenu from "./AccountMenu";
 
 const links = [
   { label: "Collections", href: "/categories" },
-  { label: "Editorial", href: "#" },
   { label: "Objects", href: "/categories/objects" },
   { label: "Atelier", href: "/categories/atelier" },
   { label: "Archives", href: "/categories/archives" },

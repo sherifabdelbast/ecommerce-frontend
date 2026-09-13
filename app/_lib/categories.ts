@@ -1,14 +1,9 @@
 import { cache } from "react";
+import { apiFetch, Paginated, Resource } from "./api";
 import { getProducts, type Product } from "./products";
 
 /**
- * Category data layer.
- *
- * Currently backed by an in-module mock index. When the Laravel API is ready,
- * swap the bodies of `getCategories` / `getCategoryBySlug` for `apiFetch`
- * calls to `/categories` and `/categories/{slug}` — the exported `Category`
- * type mirrors the API model (`id`, `name`, `slug`, `description`,
- * `parentId`, `imageUrl`, `icon`, `status`), so the swap stays local here.
+ * Category data layer — backed by the Laravel API.
  */
 
 export type CategoryStatus = "active" | "inactive";
@@ -17,110 +12,54 @@ export type Category = {
   id: number;
   name: string;
   slug: string;
-  description: string;
+  description: string | null;
   parentId: number | null;
-  imageUrl: string;
+  imageUrl: string | null;
   icon: string | null;
   status: CategoryStatus;
-  /** Editorial copy shown in the category hero. */
-  index: string;
-  meta: string;
-  /** Curated catalogue — product slugs belonging to this category. */
-  productSlugs: string[];
+  level: number;
+  sortOrder: number;
+  displayIndex: string | null;
+  meta: string | null;
+  productsCount: number;
 };
 
-const CATEGORIES: readonly Category[] = [
-  {
-    id: 1,
-    name: "Objects",
-    slug: "objects",
-    description:
-      "Essential elements for the modern interior — sculptural furniture and lighting that prioritise geometric purity.",
-    parentId: null,
-    imageUrl: "/images/categories/objects.png",
-    icon: null,
-    status: "active",
-    index: "01",
-    meta: "Sculptural Elements",
-    productSlugs: ["monolith-chair", "cemento-lamp", "pillar-pedestal"],
-  },
-  {
-    id: 2,
-    name: "Atelier",
-    slug: "atelier",
-    description:
-      "Limited editions and handcrafted masterworks — a celebration of material honesty and artisan dedication.",
-    parentId: null,
-    imageUrl: "/images/categories/atelier.png",
-    icon: null,
-    status: "active",
-    index: "02",
-    meta: "Artisan Works",
-    productSlugs: ["slat-screen", "vestige-table"],
-  },
-  {
-    id: 3,
-    name: "Collections",
-    slug: "collections",
-    description:
-      "Thematic curations and seasonal narratives — each collection a story of spatial harmony and evolved living.",
-    parentId: null,
-    imageUrl: "/images/categories/collections.png",
-    icon: null,
-    status: "active",
-    index: "03",
-    meta: "Thematic Series",
-    productSlugs: ["vestige-table", "grid-storage", "monolith-chair"],
-  },
-  {
-    id: 4,
-    name: "Archives",
-    slug: "archives",
-    description:
-      "A retrospective of foundational pieces and rare finds — access to our library of design history.",
-    parentId: null,
-    imageUrl: "/images/categories/archives.png",
-    icon: null,
-    status: "active",
-    index: "04",
-    meta: "Legacy",
-    productSlugs: ["pillar-pedestal", "grid-storage"],
-  },
-];
-
-/** Index query. `cache()` dedups within a single server render. */
-export const getCategories = cache(async (): Promise<Category[]> => {
-  return CATEGORIES.slice();
+const fetchAllCategories = cache(async (): Promise<Category[]> => {
+  const res = await apiFetch<Paginated<Category>>("/categories?per_page=50", {
+    cache: "no-store",
+  });
+  return res.data;
 });
 
-/** Detail query — `cache()`-wrapped so metadata + page share one lookup. */
+export const getCategories = cache(async (): Promise<Category[]> => {
+  return fetchAllCategories();
+});
+
 export const getCategoryBySlug = cache(
   async (slug: string): Promise<Category | null> => {
-    return CATEGORIES.find((c) => c.slug === slug) ?? null;
+    try {
+      const res = await apiFetch<Resource<Category>>(`/categories/${slug}`, {
+        cache: "no-store",
+      });
+      return res.data;
+    } catch {
+      return null;
+    }
   },
 );
 
 /**
- * Products curated into a category, preserving the listed order.
- * Returns an empty array for an unknown slug.
+ * Products belonging to a category — filters the live catalogue by the
+ * category's slug rather than a curated list, since every product already
+ * carries its real category relationship from the API.
  */
 export const getCategoryProducts = cache(
   async (slug: string): Promise<Product[]> => {
-    // Category lookup and the catalogue are independent — fetch in parallel.
-    const [category, products] = await Promise.all([
-      getCategoryBySlug(slug),
-      getProducts(),
-    ]);
-    if (!category) return [];
-
-    const bySlug = new Map(products.map((p) => [p.slug, p]));
-    return category.productSlugs
-      .map((s) => bySlug.get(s))
-      .filter((p): p is Product => p !== undefined);
+    return getProducts({ category: slug });
   },
 );
 
-/** All slugs — used by `generateStaticParams` for the detail route. */
-export function getAllCategorySlugs(): string[] {
-  return CATEGORIES.map((c) => c.slug);
-}
+export const getAllCategorySlugs = cache(async (): Promise<string[]> => {
+  const categories = await fetchAllCategories();
+  return categories.map((c) => c.slug);
+});

@@ -1,19 +1,21 @@
 import Link from "next/link";
-import { LuListFilter, LuDownload, LuPlus, LuEye, LuPencil, LuTrash2, LuExternalLink } from "react-icons/lu";
+import {
+  LuListFilter,
+  LuDownload,
+  LuPlus,
+  LuEye,
+  LuPencil,
+  LuTrash2,
+  LuExternalLink,
+} from "react-icons/lu";
 import AdminPageHeader from "../../../_components/AdminPageHeader";
-import { getBrands, getBrandProducts } from "../../../_lib/brands";
+import { getBrands } from "../../../_lib/brands";
 
 /**
- * Admin brands table — CSR, auth + role gated (CLAUDE.md). Reads the
- * admin brands endpoint later; currently the mock index.
+ * Admin brands table — CSR, auth + role gated (CLAUDE.md).
  */
 export default async function AdminBrandsPage() {
   const brands = await getBrands();
-
-  // Product counts per brand — independent reads, fan out in parallel.
-  const counts = await Promise.all(
-    brands.map((b) => getBrandProducts(b.slug).then((p) => p.length)),
-  );
 
   return (
     <div>
@@ -47,8 +49,6 @@ export default async function AdminBrandsPage() {
             <thead>
               <tr className="border-b border-outline-variant/20 font-label text-[10px] uppercase tracking-widest text-secondary">
                 <th className="px-6 py-4 font-bold">Brand</th>
-                <th className="px-6 py-4 font-bold">Discipline</th>
-                <th className="px-6 py-4 font-bold">Founded</th>
                 <th className="px-6 py-4 font-bold">Products</th>
                 <th className="px-6 py-4 font-bold">Website</th>
                 <th className="px-6 py-4 font-bold">Status</th>
@@ -69,12 +69,8 @@ export default async function AdminBrandsPage() {
                       {brand.slug}
                     </p>
                   </td>
-                  <td className="px-6 py-4 text-on-surface">
-                    {brand.discipline}
-                  </td>
-                  <td className="px-6 py-4 text-secondary">{brand.founded}</td>
                   <td className="px-6 py-4 font-semibold text-primary">
-                    {counts[i]}
+                    {brand.productsCount}
                   </td>
                   <td className="px-6 py-4">
                     {brand.website ? (

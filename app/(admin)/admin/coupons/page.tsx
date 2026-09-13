@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { LuListFilter, LuDownload, LuPlus, LuPencil, LuTrash2 } from "react-icons/lu";
+import {
+  LuListFilter,
+  LuDownload,
+  LuPlus,
+  LuPencil,
+  LuTrash2,
+} from "react-icons/lu";
 import AdminPageHeader from "@/app/_components/AdminPageHeader";
 import { formatPrice } from "@/app/_lib/format";
 import { getCoupons, type CouponStatus } from "@/app/_lib/coupons";
@@ -8,12 +14,18 @@ const STATUS_BADGE: Record<CouponStatus, string> = {
   active: "bg-tertiary-fixed text-on-tertiary-fixed",
   scheduled: "bg-surface-container-highest text-on-surface-variant",
   expired: "bg-error-container text-error",
+  inactive: "bg-surface-container-highest text-on-surface-variant",
 };
 
-/**
- * Admin coupons table — CSR, auth + role gated (CLAUDE.md). Reads the admin
- * coupons endpoint later; currently the mock register.
- */
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export default async function AdminCouponsPage() {
   const coupons = await getCoupons();
 
@@ -50,7 +62,7 @@ export default async function AdminCouponsPage() {
               <tr className="border-b border-outline-variant/20 font-label text-[10px] uppercase tracking-widest text-secondary">
                 <th className="px-6 py-4 font-bold">Code</th>
                 <th className="px-6 py-4 font-bold">Value</th>
-                <th className="px-6 py-4 font-bold">Min. Subtotal</th>
+                <th className="px-6 py-4 font-bold">Min. Purchase</th>
                 <th className="px-6 py-4 font-bold">Usage</th>
                 <th className="px-6 py-4 font-bold">Window</th>
                 <th className="px-6 py-4 font-bold">Status</th>
@@ -77,15 +89,17 @@ export default async function AdminCouponsPage() {
                       : formatPrice(coupon.value)}
                   </td>
                   <td className="px-6 py-4 text-on-surface">
-                    {coupon.minSubtotal === null ? "—" : formatPrice(coupon.minSubtotal)}
+                    {coupon.minPurchase === null
+                      ? "—"
+                      : formatPrice(coupon.minPurchase)}
                   </td>
                   <td className="px-6 py-4 text-secondary">
-                    {coupon.usageCount} / {coupon.usageLimit ?? "∞"}
+                    {coupon.usedCount} / {coupon.usageLimit ?? "∞"}
                   </td>
                   <td className="px-6 py-4 text-[11px] text-secondary">
-                    {coupon.startsOn}
+                    {formatDate(coupon.validFrom)}
                     <br />
-                    {coupon.endsOn}
+                    {formatDate(coupon.validTo)}
                   </td>
                   <td className="px-6 py-4">
                     <span

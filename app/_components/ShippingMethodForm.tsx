@@ -6,7 +6,6 @@ type ShippingMethodFormProps = {
   heading: string;
   subtitle: string;
   submitLabel: string;
-  /** Existing method when editing; omitted when creating. */
   method?: ShippingMethod;
 };
 
@@ -15,7 +14,6 @@ const FIELD =
 const LABEL =
   "mb-2 block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant";
 
-/** Shared admin shipping-method form — backs the create and edit routes. */
 export default function ShippingMethodForm({
   heading,
   subtitle,
@@ -40,31 +38,17 @@ export default function ShippingMethodForm({
       </header>
 
       <form className="space-y-6 rounded-xl bg-surface-container-lowest p-8 shadow-ambient">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div>
-            <label htmlFor="name" className={LABEL}>
-              Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              defaultValue={method?.name}
-              placeholder="White Glove Standard"
-              className={FIELD}
-            />
-          </div>
-          <div>
-            <label htmlFor="carrier" className={LABEL}>
-              Carrier
-            </label>
-            <input
-              id="carrier"
-              name="carrier"
-              defaultValue={method?.carrier}
-              placeholder="Atelier Logistics"
-              className={FIELD}
-            />
-          </div>
+        <div>
+          <label htmlFor="name" className={LABEL}>
+            Name
+          </label>
+          <input
+            id="name"
+            name="name"
+            defaultValue={method?.name}
+            placeholder="White Glove Standard"
+            className={FIELD}
+          />
         </div>
 
         <div>
@@ -75,7 +59,7 @@ export default function ShippingMethodForm({
             id="description"
             name="description"
             rows={3}
-            defaultValue={method?.description}
+            defaultValue={method?.description ?? ""}
             placeholder="Customer-facing description shown at checkout."
             className={FIELD}
           />
@@ -83,42 +67,45 @@ export default function ShippingMethodForm({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div>
-            <label htmlFor="price" className={LABEL}>
-              Price (USD)
+            <label htmlFor="cost" className={LABEL}>
+              Cost (USD)
             </label>
             <input
-              id="price"
-              name="price"
+              id="cost"
+              name="cost"
               type="number"
               min="0"
-              defaultValue={method?.price}
+              step="0.01"
+              defaultValue={method?.cost}
               placeholder="0"
               className={FIELD}
             />
           </div>
           <div>
-            <label htmlFor="free_above" className={LABEL}>
-              Free Above
+            <label htmlFor="estimated_days_min" className={LABEL}>
+              Min Days
             </label>
             <input
-              id="free_above"
-              name="free_above"
+              id="estimated_days_min"
+              name="estimated_days_min"
               type="number"
               min="0"
-              defaultValue={method?.freeAbove ?? ""}
-              placeholder="Never"
+              defaultValue={method?.estimatedDaysMin ?? ""}
+              placeholder="5"
               className={FIELD}
             />
           </div>
           <div>
-            <label htmlFor="estimated_days" className={LABEL}>
-              Estimate
+            <label htmlFor="estimated_days_max" className={LABEL}>
+              Max Days
             </label>
             <input
-              id="estimated_days"
-              name="estimated_days"
-              defaultValue={method?.estimatedDays}
-              placeholder="5 – 7 days"
+              id="estimated_days_max"
+              name="estimated_days_max"
+              type="number"
+              min="0"
+              defaultValue={method?.estimatedDaysMax ?? ""}
+              placeholder="7"
               className={FIELD}
             />
           </div>
@@ -138,19 +125,17 @@ export default function ShippingMethodForm({
               className={FIELD}
             />
           </div>
-          <div>
-            <label htmlFor="status" className={LABEL}>
-              Status
+          <div className="flex items-end pb-3">
+            <label className="flex items-center gap-3 font-body text-sm text-on-surface">
+              <input
+                id="is_active"
+                name="is_active"
+                type="checkbox"
+                defaultChecked={method?.isActive ?? true}
+                className="h-4 w-4 rounded border-outline-variant"
+              />
+              Active
             </label>
-            <select
-              id="status"
-              name="status"
-              defaultValue={method?.status ?? "active"}
-              className={FIELD}
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
           </div>
         </div>
 
