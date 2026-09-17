@@ -1,17 +1,29 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Tree-shake icon imports so `react-icons/lu` does not pull the whole set
-  // (vercel bundle-barrel-imports).
   experimental: {
     optimizePackageImports: ["react-icons"],
   },
   images: {
-    // API content images. Local dev: admin uploads land on Laravel storage;
-    // the seeders use picsum.photos / via.placeholder.com placeholders.
-    // Swap/trim this for the real S3/CDN host in production.
+    // Next's image optimizer blocks proxying images whose resolved IP is
+    // private/loopback (SSRF protection) — which "localhost" always is.
+    // Unoptimized mode serves images as-is, which is fine for local dev
+    // against a local backend. Remove this once deployed behind a real,
+    // publicly resolvable domain, and restore remotePatterns below.
+    unoptimized: true,
     remotePatterns: [
-      { protocol: "http", hostname: "localhost", port: "8000", pathname: "/storage/**" },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/storage/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/images/**",
+      },
       { protocol: "https", hostname: "picsum.photos" },
       { protocol: "https", hostname: "via.placeholder.com" },
     ],
