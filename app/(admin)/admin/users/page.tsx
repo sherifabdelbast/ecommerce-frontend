@@ -1,23 +1,28 @@
 import Link from "next/link";
-import { LuListFilter, LuDownload, LuPlus, LuPencil, LuTrash2 } from "react-icons/lu";
+import {
+  LuListFilter,
+  LuDownload,
+  LuPlus,
+  LuPencil,
+  LuTrash2,
+} from "react-icons/lu";
 import AdminPageHeader from "@/app/_components/AdminPageHeader";
-import { formatPrice } from "@/app/_lib/format";
-import { getAdminUsers, type UserRole, type UserStatus } from "@/app/_lib/users";
+import { getAdminUsers, type UserRole } from "@/app/_lib/users";
 
 const ROLE_BADGE: Record<UserRole, string> = {
   admin: "bg-primary-container text-white",
   customer: "bg-surface-container-highest text-on-surface-variant",
 };
 
-const STATUS_BADGE: Record<UserStatus, string> = {
-  active: "bg-tertiary-fixed text-on-tertiary-fixed",
-  suspended: "bg-error-container text-error",
-};
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 
-/**
- * Admin users table — CSR, auth + role gated (CLAUDE.md). Reads the admin
- * users endpoint later; currently the mock register.
- */
 export default async function AdminUsersPage() {
   const users = await getAdminUsers();
 
@@ -56,8 +61,6 @@ export default async function AdminUsersPage() {
                 <th className="px-6 py-4 font-bold">Email</th>
                 <th className="px-6 py-4 font-bold">Role</th>
                 <th className="px-6 py-4 font-bold">Joined</th>
-                <th className="px-6 py-4 font-bold">Orders</th>
-                <th className="px-6 py-4 font-bold">Spent</th>
                 <th className="px-6 py-4 font-bold">Status</th>
                 <th className="px-6 py-4 text-right font-bold">Actions</th>
               </tr>
@@ -86,16 +89,18 @@ export default async function AdminUsersPage() {
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-secondary">{user.joinedOn}</td>
-                  <td className="px-6 py-4 text-on-surface">{user.orderCount}</td>
-                  <td className="px-6 py-4 font-semibold text-primary">
-                    {formatPrice(user.totalSpent)}
+                  <td className="px-6 py-4 text-secondary">
+                    {formatDate(user.createdAt)}
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`rounded-full px-2.5 py-1 font-label text-[10px] font-bold uppercase tracking-wider ${STATUS_BADGE[user.status]}`}
+                      className={`rounded-full px-2.5 py-1 font-label text-[10px] font-bold uppercase tracking-wider ${
+                        user.isActive
+                          ? "bg-tertiary-fixed text-on-tertiary-fixed"
+                          : "bg-error-container text-error"
+                      }`}
                     >
-                      {user.status}
+                      {user.isActive ? "active" : "suspended"}
                     </span>
                   </td>
                   <td className="px-6 py-4">

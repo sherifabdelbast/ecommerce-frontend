@@ -3,11 +3,9 @@ import { LuArrowLeft } from "react-icons/lu";
 import type { Address } from "../_lib/addresses";
 
 type AddressFormProps = {
-  /** Heading + submit copy differ between the new and edit routes. */
   heading: string;
   subtitle: string;
   submitLabel: string;
-  /** Existing values when editing; omitted when creating. */
   address?: Address;
 };
 
@@ -16,10 +14,6 @@ const FIELD_CLASS =
 const LABEL_CLASS =
   "mb-2 block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant";
 
-/**
- * Shared address form — used by both the new-address and edit-address
- * routes. Submission wires to POST / PUT /v1/addresses later.
- */
 export default function AddressForm({
   heading,
   subtitle,
@@ -44,56 +38,87 @@ export default function AddressForm({
       </header>
 
       <form className="space-y-8 rounded-xl bg-surface-container-lowest p-8 shadow-ambient">
-        <div>
-          <label htmlFor="label" className={LABEL_CLASS}>
-            Address Label
-          </label>
-          <input
-            id="label"
-            name="label"
-            defaultValue={address?.label}
-            placeholder="e.g. Primary Shipping, Work Studio"
-            className={FIELD_CLASS}
-          />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="type" className={LABEL_CLASS}>
+              Address Type
+            </label>
+            <select
+              id="type"
+              name="type"
+              defaultValue={address?.type ?? "shipping"}
+              className={FIELD_CLASS}
+            >
+              <option value="shipping">Shipping</option>
+              <option value="billing">Billing</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="label" className={LABEL_CLASS}>
+              Address Label <span className="text-outline">(optional)</span>
+            </label>
+            <input
+              id="label"
+              name="label"
+              defaultValue={address?.label ?? ""}
+              placeholder="e.g. Primary Shipping, Work Studio"
+              className={FIELD_CLASS}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="first_name" className={LABEL_CLASS}>
+              First Name
+            </label>
+            <input
+              id="first_name"
+              name="first_name"
+              autoComplete="given-name"
+              defaultValue={address?.firstName}
+              placeholder="First name"
+              className={FIELD_CLASS}
+            />
+          </div>
+          <div>
+            <label htmlFor="last_name" className={LABEL_CLASS}>
+              Last Name
+            </label>
+            <input
+              id="last_name"
+              name="last_name"
+              autoComplete="family-name"
+              defaultValue={address?.lastName}
+              placeholder="Last name"
+              className={FIELD_CLASS}
+            />
+          </div>
         </div>
 
         <div>
-          <label htmlFor="recipient_name" className={LABEL_CLASS}>
-            Recipient Full Name
-          </label>
-          <input
-            id="recipient_name"
-            name="recipient_name"
-            autoComplete="name"
-            defaultValue={address?.recipientName}
-            placeholder="Full name"
-            className={FIELD_CLASS}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="line1" className={LABEL_CLASS}>
+          <label htmlFor="street_line_1" className={LABEL_CLASS}>
             Address Line 1
           </label>
           <input
-            id="line1"
-            name="line1"
+            id="street_line_1"
+            name="street_line_1"
             autoComplete="address-line1"
-            defaultValue={address?.line1}
+            defaultValue={address?.streetLine1}
             placeholder="Street address"
             className={FIELD_CLASS}
           />
         </div>
 
         <div>
-          <label htmlFor="line2" className={LABEL_CLASS}>
+          <label htmlFor="street_line_2" className={LABEL_CLASS}>
             Address Line 2 <span className="text-outline">(optional)</span>
           </label>
           <input
-            id="line2"
-            name="line2"
+            id="street_line_2"
+            name="street_line_2"
             autoComplete="address-line2"
-            defaultValue={address?.line2}
+            defaultValue={address?.streetLine2 ?? ""}
             placeholder="Unit, floor, suite"
             className={FIELD_CLASS}
           />
@@ -114,14 +139,14 @@ export default function AddressForm({
             />
           </div>
           <div>
-            <label htmlFor="state" className={LABEL_CLASS}>
+            <label htmlFor="state_province" className={LABEL_CLASS}>
               State / Region
             </label>
             <input
-              id="state"
-              name="state"
+              id="state_province"
+              name="state_province"
               autoComplete="address-level1"
-              defaultValue={address?.state}
+              defaultValue={address?.stateProvince}
               placeholder="State"
               className={FIELD_CLASS}
             />
@@ -141,7 +166,7 @@ export default function AddressForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div>
             <label htmlFor="country" className={LABEL_CLASS}>
               Country
@@ -169,6 +194,35 @@ export default function AddressForm({
               className={FIELD_CLASS}
             />
           </div>
+          <div>
+            <label htmlFor="email" className={LABEL_CLASS}>
+              Email <span className="text-outline">(optional)</span>
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              defaultValue={address?.email ?? ""}
+              placeholder="email@example.com"
+              className={FIELD_CLASS}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="delivery_instructions" className={LABEL_CLASS}>
+            Delivery Instructions{" "}
+            <span className="text-outline">(optional)</span>
+          </label>
+          <textarea
+            id="delivery_instructions"
+            name="delivery_instructions"
+            rows={3}
+            defaultValue={address?.deliveryInstructions ?? ""}
+            placeholder="Gate code, preferred entrance, etc."
+            className={FIELD_CLASS}
+          />
         </div>
 
         <label className="flex items-center gap-3">
@@ -179,7 +233,7 @@ export default function AddressForm({
             className="h-4 w-4 rounded-sm text-emerald-accent focus:ring-emerald-accent"
           />
           <span className="font-body text-sm text-on-surface">
-            Set as default shipping address
+            Set as default address
           </span>
         </label>
 

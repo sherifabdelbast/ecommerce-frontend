@@ -1,19 +1,48 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import AddressForm from "../../../../../_components/AddressForm";
-import { getAddressById } from "../../../../../_lib/addresses";
+import { getAddressById, type Address } from "../../../../../_lib/addresses";
 
-type RouteParams = { addressId: string };
+export default function EditAddressPage() {
+  const params = useParams<{ addressId: string }>();
+  const [address, setAddress] = useState<Address | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-// Auth-gated, user-private (CLAUDE.md → CSR) — rendered on demand, never
-// prerendered into static HTML at build time.
-export default async function EditAddressPage({
-  params,
-}: {
-  params: Promise<RouteParams>;
-}) {
-  const { addressId } = await params;
-  const address = await getAddressById(Number(addressId));
-  if (!address) notFound();
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const result = await getAddressById(Number(params.addressId));
+      if (cancelled) return;
+      if (!result) {
+        setNotFound(true);
+      } else {
+        setAddress(result);
+      }
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [params.addressId]);
+
+  if (loading) {
+    return (
+      <p className="px-6 py-12 font-body text-sm text-secondary sm:px-10 lg:px-16">
+        Loading…
+      </p>
+    );
+  }
+
+  if (notFound || !address) {
+    return (
+      <p className="px-6 py-12 font-body text-sm text-error sm:px-10 lg:px-16">
+        Address not found.
+      </p>
+    );
+  }
 
   return (
     <AddressForm

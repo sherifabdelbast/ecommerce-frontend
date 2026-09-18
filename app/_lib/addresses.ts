@@ -1,84 +1,60 @@
-import { cache } from "react";
+import { apiFetch, Resource } from "./api";
 
 /**
- * Addresses data layer.
+ * Addresses data layer — backed by the Laravel API.
  *
- * Currently a static mock. The live version uses the authenticated
- * endpoints GET/POST /v1/addresses, GET/PUT/DELETE /v1/addresses/{id} and
- * PATCH /v1/addresses/{id}/set-default. The `Address` type mirrors the
- * intended API shape so the swap stays local.
+ * `/addresses` requires auth:sanctum, so these are called client-side
+ * (browser sends the session cookie automatically) — same pattern as
+ * auth-context.tsx and wishlist.ts, not wrapped in React's server `cache()`.
  */
+
+export type AddressType = "shipping" | "billing";
 
 export type Address = {
   id: number;
-  /** Nickname shown as the card badge, e.g. "Primary Shipping". */
-  label: string;
-  recipientName: string;
-  line1: string;
-  line2: string;
+  type: AddressType;
+  label: string | null;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  phone: string;
+  email: string | null;
+  streetLine1: string;
+  streetLine2: string | null;
   city: string;
-  state: string;
+  stateProvince: string;
   postalCode: string;
   country: string;
-  phone: string;
+  fullAddress: string;
+  deliveryInstructions: string | null;
   isDefault: boolean;
+  createdAt: string | null;
 };
 
-const ADDRESSES: readonly Address[] = [
-  {
-    id: 1,
-    label: "Primary Shipping",
-    recipientName: "Julian Abernathy",
-    line1: "721 Architectural Way",
-    line2: "Penthouse 4B",
-    city: "New York",
-    state: "NY",
-    postalCode: "10013",
-    country: "United States",
-    phone: "+1 (212) 555-0198",
-    isDefault: true,
-  },
-  {
-    id: 2,
-    label: "Work Studio",
-    recipientName: "ARCHITECT Office",
-    line1: "900 Industrial Boulevard",
-    line2: "Floor 12, Studio C",
-    city: "Austin",
-    state: "TX",
-    postalCode: "78701",
-    country: "United States",
-    phone: "+1 (512) 555-0432",
-    isDefault: false,
-  },
-  {
-    id: 3,
-    label: "Summer Residence",
-    recipientName: "Julian Abernathy",
-    line1: "42 Shoreline Road",
-    line2: "",
-    city: "East Hampton",
-    state: "NY",
-    postalCode: "11937",
-    country: "United States",
-    phone: "+1 (631) 555-0821",
-    isDefault: false,
-  },
-];
+export async function getAddresses(): Promise<Address[]> {
+  const res = await apiFetch<Resource<Address[]>>("/addresses");
+  return res.data;
+}
 
-/** Address list. */
-export const getAddresses = cache(async (): Promise<Address[]> => {
-  return ADDRESSES.slice();
-});
+export async function getAddressById(id: number): Promise<Address | null> {
+  try {
+    const res = await apiFetch<Resource<Address>>(`/addresses/${id}`);
+    return res.data;
+  } catch {
+    return null;
+  }
+}
 
-/** Single address by id. */
-export const getAddressById = cache(
-  async (id: number): Promise<Address | null> => {
-    return ADDRESSES.find((a) => a.id === id) ?? null;
-  },
-);
+export async function setDefaultAddress(id: number): Promise<Address> {
+  const res = await apiFetch<Resource<Address>>(
+    `/addresses/${id}/set-default`,
+    {
+      method: "PATCH",
+    },
+  );
+  return res.data;
+}
 
-/** All ids — used by `generateStaticParams` for the edit route. */
-export function getAllAddressIds(): number[] {
-  return ADDRESSES.map((a) => a.id);
+export async function deleteAddress(id: number): Promise<void> {
+  await apiFetch(`/addresses/${id}`, { method: "DELETE" });
 }

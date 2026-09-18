@@ -1,21 +1,55 @@
 "use client";
 
-import { LuArrowRight, LuMail, LuPhone, LuCamera, LuShieldCheck } from "react-icons/lu";
+import { useState, type FormEvent } from "react";
+import {
+  LuArrowRight,
+  LuMail,
+  LuPhone,
+  LuCamera,
+  LuShieldCheck,
+} from "react-icons/lu";
 import { initials, memberSince } from "@/app/_lib/account";
 import { useUser } from "@/app/_lib/auth-context";
+import { apiFetch, Resource } from "@/app/_lib/api";
 
-/**
- * Account profile — CSR, auth-gated (CLAUDE.md). Editable account details
- * sourced from the AuthProvider's `/auth/me` session. Submit wires to
- * `PUT /v1/profile` (still mock-side until that mutation lands).
- */
 const FIELD_CLASS =
   "w-full rounded-md border-none bg-surface-container-low px-4 py-3.5 font-body text-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary";
 const LABEL_CLASS =
   "mb-2 block font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant";
 
 export default function ProfilePage() {
-  const { user, loading } = useUser();
+  const { user, loading, refresh } = useUser();
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setMessage(null);
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      await apiFetch<Resource<unknown>>("/profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          first_name: formData.get("first_name"),
+          last_name: formData.get("last_name"),
+          email: formData.get("email"),
+          phone: formData.get("phone") || null,
+        }),
+      });
+      await refresh();
+      setMessage({ type: "success", text: "Profile updated." });
+    } catch {
+      setMessage({ type: "error", text: "Couldn't update your profile." });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -47,9 +81,11 @@ export default function ProfilePage() {
       </header>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Form card */}
         <div className="lg:col-span-2">
-          <form className="space-y-8 rounded-xl bg-surface-container-lowest p-8 shadow-ambient">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-8 rounded-xl bg-surface-container-lowest p-8 shadow-ambient"
+          >
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label htmlFor="first_name" className={LABEL_CLASS}>
@@ -115,17 +151,29 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {message && (
+              <p
+                className={`font-body text-sm ${
+                  message.type === "success"
+                    ? "text-emerald-accent"
+                    : "text-error"
+                }`}
+              >
+                {message.text}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="group flex items-center justify-center gap-2 rounded-md bg-gradient-to-b from-[#0d0d0d] to-primary px-8 py-4 font-label text-[11px] font-bold uppercase tracking-widest text-on-primary shadow-ambient transition-all hover:from-primary hover:to-primary-container active:scale-[0.98] max-sm:w-full"
+              disabled={saving}
+              className="group flex items-center justify-center gap-2 rounded-md bg-gradient-to-b from-[#0d0d0d] to-primary px-8 py-4 font-label text-[11px] font-bold uppercase tracking-widest text-on-primary shadow-ambient transition-all hover:from-primary hover:to-primary-container active:scale-[0.98] disabled:opacity-50 max-sm:w-full"
             >
-              Update Profile
+              {saving ? "Saving…" : "Update Profile"}
               <LuArrowRight className="text-base transition-transform group-hover:translate-x-1" />
             </button>
           </form>
         </div>
 
-        {/* Side cards */}
         <div className="space-y-8">
           <div className="flex flex-col items-center gap-4 rounded-xl bg-surface-container-lowest p-8 text-center shadow-ambient">
             <div className="relative">
@@ -156,8 +204,8 @@ export default function ProfilePage() {
               Account Security
             </h2>
             <p className="font-body text-sm leading-relaxed text-white/70">
-              Enhance your security with two-factor authentication and
-              quarterly password rotations.
+              Enhance your security with two-factor authentication and quarterly
+              password rotations.
             </p>
             <button
               type="button"

@@ -1,10 +1,13 @@
 /**
  * Account display helpers. The actual user object lives in `auth-context`
- * (sourced from `GET /v1/auth/me`); this module is just for shared formatters.
+ * (sourced from `GET /v1/profile`); this module is just for shared formatters.
  */
 
 /** Two-letter initials for the avatar fallback. */
-export function initials(user: { firstName: string; lastName: string }): string {
+export function initials(user: {
+  firstName: string;
+  lastName: string;
+}): string {
   return `${user.firstName[0] ?? ""}${user.lastName[0] ?? ""}`.toUpperCase();
 }
 
