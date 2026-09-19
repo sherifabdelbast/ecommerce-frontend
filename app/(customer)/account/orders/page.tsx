@@ -1,12 +1,11 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LuChevronRight, LuChevronDown } from "react-icons/lu";
+import { LuChevronRight, LuChevronDown, LuPackage } from "react-icons/lu";
 import { formatPrice } from "../../../_lib/format";
 import { getOrders, STATUS_LABELS, type Order } from "../../../_lib/orders";
 
-/**
- * Order history — CSR, auth-gated (CLAUDE.md). Reads GET /v1/orders later.
- */
 function StatusBadge({ status }: { status: Order["status"] }) {
   const positive = status === "shipped" || status === "processing";
   return (
@@ -22,8 +21,43 @@ function StatusBadge({ status }: { status: Order["status"] }) {
   );
 }
 
-export default async function OrderHistoryPage() {
-  const orders = await getOrders();
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function orderTitle(order: Order): string {
+  if (order.items.length === 0) return `Order #${order.orderNumber}`;
+  const first = order.items[0].productName;
+  const rest = order.items.length - 1;
+  return rest > 0 ? `${first} + ${rest} more` : first;
+}
+
+export default function OrderHistoryPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getOrders();
+        if (!cancelled) setOrders(data);
+      } catch {
+        if (!cancelled) setError("Couldn't load your orders.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="px-6 py-12 sm:px-10 lg:px-16">
@@ -37,7 +71,6 @@ export default async function OrderHistoryPage() {
         </p>
       </header>
 
-      {/* Filters — static faux-selects pending the API query params */}
       <div className="mb-10 flex flex-wrap gap-6">
         {[
           { label: "Filter by Period", value: "Last 6 Months" },
@@ -58,7 +91,11 @@ export default async function OrderHistoryPage() {
         ))}
       </div>
 
-      {orders.length === 0 ? (
+      {loading ? (
+        <p className="font-body text-sm text-secondary">Loading your orders…</p>
+      ) : error ? (
+        <p className="font-body text-sm text-error">{error}</p>
+      ) : orders.length === 0 ? (
         <div className="flex min-h-72 flex-col items-center justify-center gap-3 bg-surface-container-low text-center">
           <p className="font-headline text-xl font-semibold text-primary">
             No orders yet
@@ -83,49 +120,41 @@ export default async function OrderHistoryPage() {
                     Order #{order.orderNumber}
                   </span>
                   <h2 className="mt-1 font-headline text-xl font-semibold text-primary">
-                    {order.title}
+                    {orderTitle(order)}
                   </h2>
                 </div>
                 <StatusBadge status={order.status} />
               </div>
 
               <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
-                {/* Thumbnails */}
                 <div className="flex -space-x-4">
-                  {order.items.map((item) => (
+                  {order.items.slice(0, 4).map((item) => (
                     <div
-                      key={item.sku}
-                      className="relative h-16 w-16 overflow-hidden rounded-sm bg-surface-container-highest ring-2 ring-surface-container-low"
+                      key={item.id}
+                      className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm bg-surface-container-highest text-outline ring-2 ring-surface-container-low"
                     >
-                      <Image
-                        src={item.image}
-                        alt={item.alt}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
+                      <LuPackage className="text-xl" />
                     </div>
                   ))}
                 </div>
 
-                {/* Data grid */}
                 <dl className="grid flex-1 grid-cols-2 gap-6 sm:grid-cols-3">
                   <div>
                     <dt className="font-label text-[10px] uppercase tracking-widest text-secondary">
                       Placed On
                     </dt>
                     <dd className="mt-1 font-body text-sm text-primary">
-                      {order.placedOn}
+                      {formatDate(order.createdAt)}
                     </dd>
                   </div>
                   <div>
                     <dt className="font-label text-[10px] uppercase tracking-widest text-secondary">
-                      {order.status === "delivered"
-                        ? "Delivered On"
-                        : "Estimated Arrival"}
+                      {order.status === "delivered" ? "Delivered On" : "Status"}
                     </dt>
                     <dd className="mt-1 font-body text-sm text-primary">
-                      {order.deliveredOn ?? order.estimatedArrival ?? "—"}
+                      {order.status === "delivered"
+                        ? formatDate(order.deliveredAt)
+                        : STATUS_LABELS[order.status]}
                     </dd>
                   </div>
                   <div>
